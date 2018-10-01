@@ -1,11 +1,13 @@
 package GUIs;
 
 import Main.CaixaDeFerramentas;
-import static com.sun.glass.ui.Cursor.setVisible;
 import java.awt.Container;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -16,6 +18,7 @@ public class GUIMenu extends JDialog {
 
     Container cp;
 
+    JLabel lbImagem = new JLabel();
     JPanel pnTotal = new JPanel();
 
     JMenuBar menubarMenu = new JMenuBar();
@@ -26,6 +29,11 @@ public class GUIMenu extends JDialog {
     JMenuItem turma = new JMenuItem("Turma");
     JMenuItem professor = new JMenuItem("Professor");
     JMenuItem horario = new JMenuItem("Horário");
+    
+    JMenu menuNM = new JMenu("N:M");
+    JMenuItem professorHasIdioma = new JMenuItem("Idioma-Professor");
+    //JMenuItem professorHasHorario = new JMenuItem("Horario-Professor");
+    JMenuItem matricula = new JMenuItem("Matrícula");
 
     CaixaDeFerramentas caixaDeFerramentas = new CaixaDeFerramentas();
 
@@ -34,6 +42,12 @@ public class GUIMenu extends JDialog {
         setSize(500, 320);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         cp = getContentPane();
+                
+        String caminho = "/icones/idiomascapa.png";
+        Image imagemAux;
+        ImageIcon icone = new ImageIcon(getClass().getResource(caminho));
+        imagemAux = icone.getImage();
+        icone.setImage(imagemAux.getScaledInstance(500, 270, Image.SCALE_FAST));
 
         setJMenuBar(menubarMenu);
         menubarMenu.add(menu);
@@ -48,6 +62,15 @@ public class GUIMenu extends JDialog {
         menu.add(professor);
         menu.addSeparator();
         menu.add(horario);
+        
+        
+        menubarMenu.add(menuNM);
+        menuNM.add(professorHasIdioma);
+        //menuNM.add(professorHasHorario);
+        menuNM.add(matricula);
+        
+        lbImagem.setIcon(icone);
+        pnTotal.add(lbImagem);
 
         cp.add(pnTotal);
 
@@ -90,6 +113,24 @@ public class GUIMenu extends JDialog {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 GUITurma guiTurma = new GUITurma();
+            }
+        });
+        professorHasIdioma.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GUIProfessorHasIdioma guiProfessorHasIdioma = new GUIProfessorHasIdioma();
+            }
+        });
+//        professorHasHorario.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent ae) {
+//                GUIProfessorHasHorario gUIProfessorHasHorario = new GUIProfessorHasHorario();
+//            }
+//        });
+        matricula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GUIMatricula guiMatricula = new GUIMatricula();
             }
         });
 

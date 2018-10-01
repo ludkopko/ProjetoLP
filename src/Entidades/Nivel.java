@@ -103,7 +103,7 @@ public class Nivel implements Serializable {
 
     @Override
     public String toString() {
-        return "id: " + idNivel + ", nome: " +  nomeNivel ;
+        return "idNivel:" + idNivel + " , Nome:" + nomeNivel + ", Idioma: " + idiomaIdIdioma.getNomeIdioma();
     }
     
 }

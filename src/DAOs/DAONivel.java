@@ -49,4 +49,18 @@ public class DAONivel extends DAOGenerico<Nivel> {
         }
         return ls;
     }
+    public List<String> listInOrderNomeIdiomaStrings(String qualOrdem) {
+        List<Nivel> lf;
+        if (qualOrdem.equals("id")) {
+            lf = listInOrderId();
+        } else {
+            lf = listInOrderNome();
+        }
+
+        List<String> ls = new ArrayList<>();
+        for (int i = 0; i < lf.size(); i++) {
+            ls.add(lf.get(i).getIdNivel() + "-" + lf.get(i).getNomeNivel() + "-" + lf.get(i).getIdiomaIdIdioma().getNomeIdioma());
+        }
+        return ls;
+    }
 }

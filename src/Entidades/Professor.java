@@ -185,7 +185,7 @@ public class Professor implements Serializable {
 
     @Override
     public String toString() {
-        return "id:" + idProfessor + "; nome:" + nomeProfessor;
+        return "Entidades.Professor[ idProfessor=" + idProfessor + " ]";
     }
     
 }

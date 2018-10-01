@@ -330,10 +330,10 @@ public class GUIIdioma extends JDialog {
             public void windowClosing(WindowEvent e) {
 
                 // Sai do sistema  
-                System.exit(0);
+                dispose();
             }
         });
-        
+
         setLocation(300, 200);
         setModal(true);
         setVisible(true);//faz a janela ficar visível

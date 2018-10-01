@@ -15,16 +15,27 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import static jdk.nashorn.internal.objects.NativeDebug.getClass;
 
 public class GUIHorario extends JDialog {
@@ -49,19 +60,26 @@ public class GUIHorario extends JDialog {
     String acao = "";//variavel para facilitar insert e update
     DAOHorario daoHorario = new DAOHorario();
     Horario horario;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    JLabel lbidHorario = new JLabel("idHorario");
 
+    SpinnerDateModel dateModel = new SpinnerDateModel();
+    JSpinner spinner = new JSpinner(dateModel);
+    JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(spinner, "HH:mm");
+
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    JLabel lbidHorario = new JLabel("Id Horário");
     JTextField tfidHorario = new JTextField(0);
-
-    JLabel lbcodigoHorario = new JLabel("codigoHorario");
-
+    JLabel lbcodigoHorario = new JLabel("Código do Horário");
     JTextField tfcodigoHorario = new JTextField(0);
+    JLabel lbhorasHorario = new JLabel("Horas");
+//    JTextField tfhorasHorario = new JTextField(0);
 
-    JLabel lbhorasHorario = new JLabel("horasHorario");
-
-    JTextField tfhorasHorario = new JTextField(0);
-
+//        SpinnerModel value =  
+//             new SpinnerNumberModel(5, //initial value  
+//                0, //minimum value  
+//                10, //maximum value  
+//                1); //step  
+//    JSpinner spinner = new JSpinner(value);   
+//            spinner.setBounds(100,100,50,30);  
     private void atvBotoes(boolean c, boolean r, boolean u, boolean d) {
         btnCreate.setEnabled(c);
         btnRetrieve.setEnabled(r);
@@ -82,8 +100,8 @@ public class GUIHorario extends JDialog {
 
     private void habilitarAtributos(
             boolean idHorario,
-             boolean codigoHorario,
-             boolean horasHorario
+            boolean codigoHorario,
+            boolean horasHorario
     ) {
         if (idHorario) {
             tfidHorario.requestFocus();
@@ -94,14 +112,16 @@ public class GUIHorario extends JDialog {
 
         tfcodigoHorario.setEditable(codigoHorario);
 
-        tfhorasHorario.setEditable(horasHorario);
+        spinner.setEnabled(horasHorario);
+//      apagar  spinner.setEditable(horasHorario);
 
     }
 
     public void zerarAtributos() {
         tfcodigoHorario.setText("");
-
-        tfhorasHorario.setText("");
+//        spinner.
+//
+//        tfhorasHorario.setText("");
 
     }
 
@@ -113,11 +133,14 @@ public class GUIHorario extends JDialog {
         setBackground(Color.CYAN);//cor do fundo da janela
         Container cp = getContentPane();//container principal, para adicionar nele os outros componentes
 
+        spinner.setEditor(timeEditor);
+        Time time = new Time(dateModel.getDate().getTime());
+
         atvBotoes(false, true, false, false);
 
         habilitarAtributos(true,
-                 false,
-                 false
+                false,
+                false
         );
         btnCreate.setToolTipText("Inserir novo registro");
         btnRetrieve.setToolTipText("Pesquisar por chave");
@@ -150,7 +173,7 @@ public class GUIHorario extends JDialog {
 
         centro.add(lbhorasHorario);
 
-        centro.add(tfhorasHorario);
+        centro.add(spinner);
 
         aviso.add(labelAviso);
         aviso.setBackground(Color.yellow);
@@ -178,11 +201,16 @@ public class GUIHorario extends JDialog {
                     if (horario != null) { //se encontrou na lista
                         tfidHorario.setText(String.valueOf(horario.getIdHorario()));
                         tfcodigoHorario.setText(horario.getCodigoHorario());
-                        tfhorasHorario.setText(horario.getHorasHorario());
-                        habilitarAtributos(true,
-                                 false,
-                                 false
-                        );
+                        Date hora = null;
+                        try {
+                            hora = sdf.parse(horario.getHorasHorario());
+                        } catch (ParseException ex) {
+                            Logger.getLogger(GUIHorario.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        dateModel.setValue(hora);
+
+                        habilitarAtributos(true, false, false);
                         atvBotoes(false, true, true, true);
                         labelAviso.setText("Encontrou - clic [Pesquisar], [Alterar] ou [Excluir]");
                         acao = "encontrou";
@@ -201,8 +229,8 @@ public class GUIHorario extends JDialog {
                 zerarAtributos();
 
                 habilitarAtributos(false,
-                         true,
-                         true
+                        true,
+                        true
                 );
                 tfcodigoHorario.requestFocus();
                 mostrarBotoes(false);
@@ -218,18 +246,22 @@ public class GUIHorario extends JDialog {
 
                     horario.setIdHorario(Integer.valueOf(tfidHorario.getText()));
                     horario.setCodigoHorario(tfcodigoHorario.getText());
-                    horario.setHorasHorario(tfhorasHorario.getText());
+                    Date data = dateModel.getDate();
+                    horario.setHorasHorario(String.valueOf(new SimpleDateFormat("HH:mm").format(data)));
+//                    Date date = (Date) spinner.ge
+//                    horario.setHorasHorario((String.valueOf(spinner)).getText());
                     daoHorario.inserir(horario);
-                    habilitarAtributos(true,false,false);
+                    habilitarAtributos(true, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro inserido...");
                 } else {  //acao = update
                     horario.setIdHorario(Integer.valueOf(tfidHorario.getText()));
                     horario.setCodigoHorario(tfcodigoHorario.getText());
-                    horario.setHorasHorario(tfhorasHorario.getText());
+                    Date data = dateModel.getDate();
+                    horario.setHorasHorario(String.valueOf(new SimpleDateFormat("HH:mm").format(data)));
                     daoHorario.atualizar(horario);
-                    habilitarAtributos(true,false,false);
+                    habilitarAtributos(true, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro atualizado...");
@@ -243,8 +275,8 @@ public class GUIHorario extends JDialog {
                 atvBotoes(false, true, false, false);
 
                 habilitarAtributos(true,
-                         false,
-                         false
+                        false,
+                        false
                 );
                 mostrarBotoes(true);
             }
@@ -254,7 +286,7 @@ public class GUIHorario extends JDialog {
             public void actionPerformed(ActionEvent ae) {
 
                 acao = "list";
-                GUIListagemHorario guiListagem = new GUIListagemHorario(daoHorario.listInOrderNome());
+                GUIListagemHorario guiListagem = new GUIListagemHorario(daoHorario.listInOrderId());
             }
         });
         btnUpdate.addActionListener(new ActionListener() {
@@ -264,8 +296,8 @@ public class GUIHorario extends JDialog {
                 mostrarBotoes(false);
 
                 habilitarAtributos(false,
-                         true,
-                         true
+                        true,
+                        true
                 );
             }
         });
@@ -319,27 +351,35 @@ public class GUIHorario extends JDialog {
                 tfcodigoHorario.setBackground(Color.white);
             }
         });
-        tfhorasHorario.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
-            @Override
-            public void focusGained(FocusEvent fe) {
-                tfhorasHorario.setBackground(Color.GREEN);
-            }
+        spinner.addChangeListener(new ChangeListener() {
 
             @Override
-            public void focusLost(FocusEvent fe) { //ao perder o foco, fica branco
-                tfhorasHorario.setBackground(Color.white);
+            public void stateChanged(ChangeEvent e) {
+                Date date = (Date) ((JSpinner) e.getSource()).getValue();
+//                labelTempo.setText(String.valueOf(new SimpleDateFormat("HH:mm").format(date)));
             }
         });
+//   pode apagar     tfhorasHorario.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
+//            @Override
+//            public void focusGained(FocusEvent fe) {
+//                tfhorasHorario.setBackground(Color.GREEN);
+//            }
+//
+//            @Override
+//            public void focusLost(FocusEvent fe) { //ao perder o foco, fica branco
+//                tfhorasHorario.setBackground(Color.white);
+//            }
+//        });
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); //antes de sair do sistema, grava os dados da lista em disco
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
 
                 // Sai do sistema  
-                System.exit(0);
+                dispose();
             }
         });
-        
+
         setLocation(300, 200);
         setModal(true);
         setVisible(true);//faz a janela ficar visível

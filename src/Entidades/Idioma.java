@@ -106,12 +106,7 @@ public class Idioma implements Serializable {
 
     @Override
     public String toString() {
-        return "id: " + idIdioma + ", nome:" + nomeIdioma;
+        return "ID: " + idIdioma + ", Nome:" + nomeIdioma;
     }
-    
-//    @Override
-//    public String Listagem() {
-//        return nomeIdioma;
-//    }
     
 }

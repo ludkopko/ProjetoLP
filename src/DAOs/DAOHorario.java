@@ -27,13 +27,27 @@ public class DAOHorario extends DAOGenerico<Horario> {
     }
 
     public List<Horario> listInOrderNome() {
-        return em.createQuery("SELECT e FROM Horario e ORDER BY e.nomeHorario").getResultList();
+        return em.createQuery("SELECT e FROM Horario e ORDER BY e.codigoHorario").getResultList();
     }
 
     public List<Horario> listInOrderId() {
         return em.createQuery("SELECT e FROM Horario e ORDER BY e.idHorario").getResultList();
     }
 
+    public List<String> listInOrderHorarioStrings(String qualOrdem) {
+        List<Horario> lf;
+        if (qualOrdem.equals("id")) {
+            lf = listInOrderId();
+        } else {
+            lf = listInOrderNome();
+        }
+
+        List<String> ls = new ArrayList<>();
+        for (int i = 0; i < lf.size(); i++) {
+            ls.add(lf.get(i).getIdHorario() + "-" + lf.get(i).getCodigoHorario() + "-" + lf.get(i).getHorasHorario());
+        }
+        return ls;
+    }
     public List<String> listInOrderNomeStrings(String qualOrdem) {
         List<Horario> lf;
         if (qualOrdem.equals("id")) {

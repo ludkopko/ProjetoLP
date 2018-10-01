@@ -117,7 +117,7 @@ public class Horario implements Serializable {
 
     @Override
     public String toString() {
-        return "id:" + idHorario;
+        return "ID:" + idHorario + "- Código: " + codigoHorario+ "- Horas:" + horasHorario;
     }
     
 }

@@ -1,11 +1,15 @@
 package GUIs;
 
+import DAOs.DAOHorario;
 import DAOs.DAONivel;
 import DAOs.DAOProfessor;
 import DAOs.DAOTurma;
+import Entidades.Horario;
 import Entidades.Nivel;
 import Entidades.Professor;
 import Entidades.Turma;
+import static com.sun.glass.ui.Cursor.setVisible;
+import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,10 +23,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -30,7 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
-public class GUITurma extends JFrame {
+public class GUITurma extends JDialog {
 
     ImageIcon iconeCreate = new ImageIcon(getClass().getResource("/icones/create.png"));
     ImageIcon iconeRetrieve = new ImageIcon(getClass().getResource("/icones/retrieve.png"));
@@ -52,9 +60,11 @@ public class GUITurma extends JFrame {
     String acao = "";//variavel para facilitar insert e update
     DAOTurma daoTurma = new DAOTurma();
     DAONivel daoNivel = new DAONivel();
+    DAOHorario daoHorario = new DAOHorario();
     DAOProfessor daoProfessor = new DAOProfessor();
+    Horario horario = new Horario();
     Turma turma;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     JLabel lbidTurma = new JLabel("idTurma");
 
     JTextField tfidTurma = new JTextField(0);
@@ -64,9 +74,9 @@ public class GUITurma extends JFrame {
     JTextField tfnomeTurma = new JTextField(0);
 
     JLabel lbdiaTurma = new JLabel("diaTurma");
+    JComboBox comboDiaTurma = new JComboBox();
 
-    JTextField tfdiaTurma = new JTextField(0);
-
+    //JTextField tfdiaTurma = new JTextField(0);
     JLabel lbhorarioinicioTurma = new JLabel("horarioinicioTurma");
 
     JTextField tfhorarioinicioTurma = new JTextField(0);
@@ -119,7 +129,7 @@ public class GUITurma extends JFrame {
 
         tfnomeTurma.setEditable(nomeTurma);
 
-        tfdiaTurma.setEditable(diaTurma);
+        comboDiaTurma.setEnabled(diaTurma);
 
         tfhorarioinicioTurma.setEditable(horarioinicioTurma);
 
@@ -134,8 +144,7 @@ public class GUITurma extends JFrame {
     public void zerarAtributos() {
         tfnomeTurma.setText("");
 
-        tfdiaTurma.setText("");
-
+        //comboDiaTurma.;
         tfhorarioinicioTurma.setText("");
 
         tfhorariofimTurma.setText("");
@@ -154,16 +163,16 @@ public class GUITurma extends JFrame {
         setBackground(Color.CYAN);//cor do fundo da janela
         Container cp = getContentPane();//container principal, para adicionar nele os outros componentes
 
+        comboDiaTurma.addItem("*SELECIONE*");
+        comboDiaTurma.addItem("Segunda");
+        comboDiaTurma.addItem("Terça");
+        comboDiaTurma.addItem("Quarta");
+        comboDiaTurma.addItem("Quinta");
+        comboDiaTurma.addItem("Sexta");
+
         atvBotoes(false, true, false, false);
 
-        habilitarAtributos(true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-        );
+        habilitarAtributos(true, false, false, false, false, false, false);
         btnCreate.setToolTipText("Inserir novo registro");
         btnRetrieve.setToolTipText("Pesquisar por chave");
         btnUpdate.setToolTipText("Alterar");
@@ -185,32 +194,20 @@ public class GUITurma extends JFrame {
         btnCancel.setVisible(false);  //atributos
         JPanel centro = new JPanel();
         centro.setLayout(new GridLayout(8, 2));
+
         centro.add(lbidTurma);
-
         centro.add(tfidTurma);
-
         centro.add(lbnomeTurma);
-
         centro.add(tfnomeTurma);
-
         centro.add(lbdiaTurma);
-
-        centro.add(tfdiaTurma);
-
+        centro.add(comboDiaTurma);
         centro.add(lbhorarioinicioTurma);
-
         centro.add(tfhorarioinicioTurma);
-
         centro.add(lbhorariofimTurma);
-
         centro.add(tfhorariofimTurma);
-
         centro.add(lbnivelIdNivel);
-
         centro.add(tfnivelIdNivel);
-
         centro.add(lbprofessorIdProfessor);
-
         centro.add(tfprofessorIdProfessor);
 
         aviso.add(labelAviso);
@@ -223,15 +220,15 @@ public class GUITurma extends JFrame {
         tfidTurma.setBackground(Color.GREEN);
         labelAviso.setText("Digite uma placa e clic [Pesquisar]");
         //setLocationRelativeTo(null); // posiciona no centro da tela principal
-        setLocation(300, 200);
-        setVisible(true);//faz a janela ficar visível
-        
-         tfidTurma.addActionListener(new ActionListener() {//pesquisa incremental no id
+        //setLocation(300, 200);
+        //setVisible(true);//faz a janela ficar visível
+
+        tfidTurma.addActionListener(new ActionListener() {//pesquisa incremental no id
             @Override
             public void actionPerformed(ActionEvent ae) {
-                
+
                 List<String> listaAuxiliar = daoTurma.listInOrderNomeStrings("id");
-                        
+
                 if (listaAuxiliar.size() > 0) {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar, 400, 400).getValorRetornado();
                     if (!selectedItem.equals("")) {
@@ -245,15 +242,12 @@ public class GUITurma extends JFrame {
                 }
             }
         });
-        
-        
-        
+
         //////////////////////////////////////////////////////////////////////////////
-        
         tfnivelIdNivel.addActionListener(new ActionListener() { //pesquisa nos campos
             @Override
             public void actionPerformed(ActionEvent ae) {
-                List<String> listaAuxiliar = daoNivel.listInOrderNomeStrings("id");
+                List<String> listaAuxiliar = daoNivel.listInOrderNomeIdiomaStrings("id");
                 if (listaAuxiliar.size() > 0) {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar, 750, 200).getValorRetornado();
                     if (!selectedItem.equals("")) {
@@ -264,10 +258,10 @@ public class GUITurma extends JFrame {
                         tfnivelIdNivel.selectAll();
                     }
                 }
-                
+
             }
         });
-        
+
         tfprofessorIdProfessor.addActionListener(new ActionListener() { //pesquisa nos campos
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -282,10 +276,48 @@ public class GUITurma extends JFrame {
                         tfprofessorIdProfessor.selectAll();
                     }
                 }
-                
+
             }
         });
-        
+
+        tfhorarioinicioTurma.addActionListener(new ActionListener() {//pesquisa incremental
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+
+                List<String> listaAuxiliar = daoHorario.listInOrderHorarioStrings("id");
+
+                if (listaAuxiliar.size() > 0) {
+                    String selectedItem = new JanelaPesquisar(listaAuxiliar, 400, 400).getValorRetornado();
+                    if (!selectedItem.equals("")) {
+                        //String[] aux = selectedItem.split("-");
+                        tfhorarioinicioTurma.setText(selectedItem);
+                    } else {
+                        tfhorarioinicioTurma.requestFocus();
+                        tfhorarioinicioTurma.selectAll();
+                    }
+                }
+            }
+        });
+
+        tfhorariofimTurma.addActionListener(new ActionListener() {//pesquisa incremental
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+
+                List<String> listaAuxiliar = daoHorario.listInOrderHorarioStrings("id");
+
+                if (listaAuxiliar.size() > 0) {
+                    String selectedItem = new JanelaPesquisar(listaAuxiliar, 400, 400).getValorRetornado();
+                    if (!selectedItem.equals("")) {
+                        //String[] aux = selectedItem.split("-");
+                        tfhorariofimTurma.setText(selectedItem);
+                    } else {
+                        tfhorariofimTurma.requestFocus();
+                        tfhorariofimTurma.selectAll();
+                    }
+                }
+            }
+        });
+
         btnRetrieve.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -302,22 +334,20 @@ public class GUITurma extends JFrame {
                     if (turma != null) { //se encontrou na lista
                         tfidTurma.setText(String.valueOf(turma.getIdTurma()));
                         tfnomeTurma.setText(turma.getNomeTurma());
-                        tfdiaTurma.setText(turma.getDiaTurma());
+                        comboDiaTurma.setSelectedItem(turma.getDiaTurma());
                         tfhorarioinicioTurma.setText(sdf.format(turma.getHorarioinicioTurma()));
                         tfhorariofimTurma.setText(sdf.format(turma.getHorariofimTurma()));
-                        
+
 //                        Idioma idioma = daoIdioma.obter(Integer.valueOf(nivel.getIdiomaIdIdioma().getIdIdioma()));
 //                        tfidiomaIdIdioma.setText(String.valueOf(idioma.getIdIdioma()+
 //                                "-" + idioma.getNomeIdioma()));
-                        
-                        
                         Nivel nivel = daoNivel.obter(Integer.valueOf(turma.getNivelIdNivel().getIdNivel()));
-                        tfnivelIdNivel.setText(String.valueOf(nivel.getIdNivel()+
-                                "-" + nivel.getNomeNivel()));
+                        tfnivelIdNivel.setText(String.valueOf(nivel.getIdNivel()
+                                + "-" + nivel.getNomeNivel()));
                         Professor professor = daoProfessor.obter(Integer.valueOf(turma.getProfessorIdProfessor().getIdProfessor()));
-                        tfprofessorIdProfessor.setText(String.valueOf(professor.getIdProfessor()+
-                                "-" + professor.getNomeProfessor()));
-                        
+                        tfprofessorIdProfessor.setText(String.valueOf(professor.getIdProfessor()
+                                + "-" + professor.getNomeProfessor()));
+
                         habilitarAtributos(true, false, false, false, false, false, false);
                         atvBotoes(false, true, true, true);
                         labelAviso.setText("Encontrou - clic [Pesquisar], [Alterar] ou [Excluir]");
@@ -358,67 +388,185 @@ public class GUITurma extends JFrame {
 
                     turma.setIdTurma(Integer.valueOf(tfidTurma.getText()));
                     turma.setNomeTurma(tfnomeTurma.getText());
-                    turma.setDiaTurma(tfdiaTurma.getText());
+                    turma.setDiaTurma(String.valueOf(comboDiaTurma.getSelectedItem()));
+
+                    String horarioiniciotf = tfhorarioinicioTurma.getText();
+                    String[] horai = horarioiniciotf.split("-");
+                    Date hhorasi;
                     try {
-                        turma.setHorarioinicioTurma(sdf.parse(tfhorarioinicioTurma.getText()));//arrumar
+                        hhorasi = sdf.parse(horai[2]);
+                        turma.setHorarioinicioTurma(hhorasi);
                     } catch (ParseException ex) {
-                        System.out.println("Erro na data");
+                        Logger.getLogger(GUITurma.class.getName()).log(Level.SEVERE, null, ex);
                     }
+
+                    String horariofimtf = tfhorariofimTurma.getText();
+                    String[] horaf = horariofimtf.split("-");
+                    Date hhorasf;
                     try {
-                        turma.setHorariofimTurma(sdf.parse(tfhorariofimTurma.getText()));
+                        hhorasf = sdf.parse(horaf[2]);
+                        turma.setHorariofimTurma(hhorasf);
                     } catch (ParseException ex) {
-                        System.out.println("Erro na data");
+                        Logger.getLogger(GUITurma.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
-//                    String[] aux = tfidiomaIdIdioma.getText().split("-");
-//                    Idioma idioma = daoIdioma.obter(Integer.valueOf(aux[0]));
-//                    nivel.setIdiomaIdIdioma(idioma);
+
+                    int idTurma = Integer.valueOf(tfidTurma.getText());
+                    int idHorasInicio = Integer.valueOf(horai[0]);
+                    int idHorasFim = Integer.valueOf(horaf[0]);
+
+                    System.out.println(idHorasInicio + "," + idHorasFim);
+                    System.out.println("Turma:" + idTurma);
 
                     String[] auxNivel = tfnivelIdNivel.getText().split("-");
                     Nivel nivel = daoNivel.obter(Integer.valueOf(auxNivel[0]));
                     turma.setNivelIdNivel(nivel);
-                    
+
                     String[] auxProfessor = tfprofessorIdProfessor.getText().split("-");
                     Professor professor = daoProfessor.obter(Integer.valueOf(auxProfessor[0]));
                     turma.setProfessorIdProfessor(professor);
-                    
+
+                    String professortf = tfprofessorIdProfessor.getText();
+                    String[] prof = professortf.split("-");
+                    int idProfessor = Integer.parseInt(prof[0]);
+                    Entidades.Professor_Has_Horario professor_Has_HorarioInicio = new Entidades.Professor_Has_Horario(idProfessor, idHorasInicio);
+
                     daoTurma.inserir(turma);
-                    habilitarAtributos(true,false,false,false,false,false,false);
+                    Entidades.Turma_Has_Horario turma_Has_HorarioInicio = new Entidades.Turma_Has_Horario(idTurma, idHorasInicio);
+                    Entidades.Turma_Has_Horario turma_Has_HorarioFim = new Entidades.Turma_Has_Horario(idTurma, idHorasFim);
+
+                    habilitarAtributos(true, false, false, false, false, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro inserido...");
                 } else {  //acao = update
+                    //Antes de tudo
+                    //vou excluir as ligações N:M de Professor e Turma com Horário
+                    //:)
+
+                    //recebendo as antigas informações
+                    turma = new Turma();
+                    tfidTurma.setText(tfidTurma.getText().trim());
+                    turma.setIdTurma(Integer.valueOf(tfidTurma.getText()));
+                    turma = daoTurma.obter(turma.getIdTurma());
+                    int idTurmaAntigo = turma.getIdTurma();
+                    Professor professorantigo = daoProfessor.obter(turma.getProfessorIdProfessor().getIdProfessor());
+                    int idProfessorAntigo = professorantigo.getIdProfessor();
+                    String horarioInicioAntigo = String.valueOf(sdf.format(turma.getHorarioinicioTurma()));
+                    String horarioFimAntigo = String.valueOf(sdf.format(turma.getHorariofimTurma()));
+
+                    //aqui eu to tentando achar a droga do ID do horario
+                    String x;
+                    int idInicioAntigo = 0;
+                    int idFimAntigo = 0;
+                    List<String> lista = daoHorario.listInOrderHorarioStrings("id");
+                    for (int i = 0; i < lista.size(); i++) {
+                        x = lista.get(i);
+                        String[] infos = x.split("-");
+                        if (infos[2].equals(horarioInicioAntigo)) {
+                            idInicioAntigo = Integer.valueOf(infos[0]);
+                        }
+                        if (infos[2].equals(horarioFimAntigo)) {
+                            idFimAntigo = Integer.valueOf(infos[0]);
+                        }
+                    }
+
+                    System.out.println("prof " + idProfessorAntigo);
+                    System.out.println("inicio " + idInicioAntigo);
+                    System.out.println("fim " + idFimAntigo);
+                    
+                    //excluindo...
+                    horario = daoHorario.obter(idInicioAntigo);
+                    List<Professor> lp1 = horario.getProfessorList();
+                    lp1.remove(daoProfessor.obter(idProfessorAntigo));
+                    daoHorario.atualizar(horario);
+
+                    horario = daoHorario.obter(idInicioAntigo);
+                    List<Turma> lp2 = horario.getTurmaList();
+                    lp2.remove(daoTurma.obter(idTurmaAntigo));
+                    daoHorario.atualizar(horario);
+
+                    horario = daoHorario.obter(idFimAntigo);
+                    List<Turma> lp3 = horario.getTurmaList();
+                    lp3.remove(daoTurma.obter(idTurmaAntigo));
+                    daoHorario.atualizar(horario);
+
+//                    idioma = daoIdioma.obter(Integer.valueOf(idm[0]));
+//                        List<Professor> lp = idioma.getProfessorList();
+//                        lp.remove(daoProfessor.obter(Integer.valueOf(prof[0])));
+//                        daoIdioma.atualizar(idioma);
                     turma.setIdTurma(Integer.valueOf(tfidTurma.getText()));
                     turma.setNomeTurma(tfnomeTurma.getText());
-                    turma.setDiaTurma(tfdiaTurma.getText());
-                    try {
-                        turma.setHorarioinicioTurma(sdf.parse(tfhorarioinicioTurma.getText()));//arrumar
-                    } catch (ParseException ex) {
-                        System.out.println("Erro na data");
+                    turma.setDiaTurma(String.valueOf(comboDiaTurma.getSelectedItem()));
+
+                    int idHorasInicio = 0;
+                    int idHorasFim = 0;
+
+                    String horarioiniciotf = tfhorarioinicioTurma.getText();
+                    if (horarioiniciotf.contains("-")) {
+                        String[] horai = horarioiniciotf.split("-");
+                        idHorasInicio = Integer.valueOf(horai[0]);
+                        Date hhorasi;
+                        try {
+                            hhorasi = sdf.parse(horai[2]);
+                            turma.setHorarioinicioTurma(hhorasi);
+                        } catch (ParseException ex) {
+                            Logger.getLogger(GUITurma.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        for (int i = 0; i < lista.size(); i++) {
+                            x = lista.get(i);
+                            String[] infos = x.split("-");
+                            if (infos[2].equals(tfhorarioinicioTurma.getText())) {
+                                idHorasInicio = Integer.valueOf(infos[0]);
+                            }
+                        }
                     }
-                    try {
-                        turma.setHorariofimTurma(sdf.parse(tfhorariofimTurma.getText()));
-                    } catch (ParseException ex) {
-                        System.out.println("Erro na data");
+
+                    String horariofimtf = tfhorariofimTurma.getText();
+                    if (horariofimtf.contains("-")) {
+                        String[] horaf = horariofimtf.split("-");
+                        idHorasFim = Integer.valueOf(horaf[0]);
+                        Date hhorasf;
+                        try {
+                            hhorasf = sdf.parse(horaf[2]);
+                            turma.setHorariofimTurma(hhorasf);
+                        } catch (ParseException ex) {
+                            Logger.getLogger(GUITurma.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }else {
+                        for (int i = 0; i < lista.size(); i++) {
+                            x = lista.get(i);
+                            String[] infos = x.split("-");
+                            if (infos[2].equals(tfhorariofimTurma.getText())) {
+                                idHorasFim = Integer.valueOf(infos[0]);
+                            }
+                        }
                     }
-                    
+
                     String[] auxNivel = tfnivelIdNivel.getText().split("-");
                     Nivel nivel = daoNivel.obter(Integer.valueOf(auxNivel[0]));
                     turma.setNivelIdNivel(nivel);
-                    
+
                     String[] auxProfessor = tfprofessorIdProfessor.getText().split("-");
                     Professor professor = daoProfessor.obter(Integer.valueOf(auxProfessor[0]));
                     turma.setProfessorIdProfessor(professor);
-                    
+
+                    int idTurma = Integer.valueOf(tfidTurma.getText());
+                    System.out.println("Atual: "+idHorasInicio +" "+ idHorasFim);
+//                    int idHorasInicio = Integer.valueOf(horai[0]);
+//                    int idHorasFim = Integer.valueOf(horaf[0]);
+
+                    String professortf = tfprofessorIdProfessor.getText();
+                    String[] prof = professortf.split("-");
+                    int idProfessor = Integer.parseInt(prof[0]);
+
+                    Entidades.Professor_Has_Horario professor_Has_HorarioInicio = new Entidades.Professor_Has_Horario(idProfessor, idHorasInicio);
+
+                    Entidades.Turma_Has_Horario turma_Has_HorarioInicio = new Entidades.Turma_Has_Horario(idTurma, idHorasInicio);
+                    Entidades.Turma_Has_Horario turma_Has_HorarioFim = new Entidades.Turma_Has_Horario(idTurma, idHorasFim);
+
                     daoTurma.atualizar(turma);
-                    habilitarAtributos(true,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                    );
+                    habilitarAtributos(true, false, false, false, false, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro atualizado...");
@@ -431,14 +579,7 @@ public class GUITurma extends JFrame {
                 zerarAtributos();
                 atvBotoes(false, true, false, false);
 
-                habilitarAtributos(true,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false
-                );
+                habilitarAtributos(true, false, false, false, false, false, false);
                 mostrarBotoes(true);
             }
         });
@@ -456,14 +597,7 @@ public class GUITurma extends JFrame {
                 acao = "update";
                 mostrarBotoes(false);
 
-                habilitarAtributos(false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true
-                );
+                habilitarAtributos(false, true, true, true, true, true, true);
             }
         });
         btnDelete.addActionListener(new ActionListener() {
@@ -473,6 +607,26 @@ public class GUITurma extends JFrame {
                         "Confirma a exclusão do registro <ID = " + turma.getIdTurma() + ">?", "Confirm",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
                     labelAviso.setText("Registro excluído...");
+                    
+                    String horarioInicioAntigo = String.valueOf(sdf.format(turma.getHorarioinicioTurma()));
+                    String x;
+                    int idInicioAntigo = 0;
+                    List<String> lista = daoHorario.listInOrderHorarioStrings("id");
+                    for (int i = 0; i < lista.size(); i++) {
+                        x = lista.get(i);
+                        String[] infos = x.split("-");
+                        if (infos[2].equals(horarioInicioAntigo)) {
+                            idInicioAntigo = Integer.valueOf(infos[0]);
+                        }
+                    }
+                    Professor professorantigo = daoProfessor.obter(turma.getProfessorIdProfessor().getIdProfessor());
+                    int idProfessorAntigo = professorantigo.getIdProfessor();
+                    
+                    horario = daoHorario.obter(idInicioAntigo);
+                    List<Professor> lp1 = horario.getProfessorList();
+                    lp1.remove(daoProfessor.obter(idProfessorAntigo));
+                    daoHorario.atualizar(horario);
+                    
                     daoTurma.remover(turma);
                     zerarAtributos();
                     tfidTurma.requestFocus();
@@ -516,15 +670,15 @@ public class GUITurma extends JFrame {
                 tfnomeTurma.setBackground(Color.white);
             }
         });
-        tfdiaTurma.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
+        comboDiaTurma.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
             @Override
             public void focusGained(FocusEvent fe) {
-                tfdiaTurma.setBackground(Color.GREEN);
+                comboDiaTurma.setBackground(Color.GREEN);
             }
 
             @Override
             public void focusLost(FocusEvent fe) { //ao perder o foco, fica branco
-                tfdiaTurma.setBackground(Color.white);
+                comboDiaTurma.setBackground(Color.white);
             }
         });
         tfhorarioinicioTurma.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
@@ -577,9 +731,13 @@ public class GUITurma extends JFrame {
             public void windowClosing(WindowEvent e) {
 
                 // Sai do sistema  
-                System.exit(0);
+                dispose();
             }
         });
+
+        setLocation(300, 200);
+        setModal(true);
+        setVisible(true);//faz a janela ficar visível
     }
 
     public static void main(String[] args) {

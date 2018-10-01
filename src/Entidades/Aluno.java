@@ -158,7 +158,7 @@ public class Aluno implements Serializable {
 
     @Override
     public String toString() {
-        return "id:" + idAluno + "; nome:" + nomeAluno;
+        return "ID: " + idAluno + ", Nome: " + nomeAluno;
     }
     
 }

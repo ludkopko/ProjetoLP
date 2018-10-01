@@ -158,7 +158,7 @@ public class Turma implements Serializable {
 
     @Override
     public String toString() {
-        return "id:" + idTurma + "; nome:" + nomeTurma;
+        return "idTurma:" + idTurma + " ";
     }
     
 }

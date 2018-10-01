@@ -35,6 +35,7 @@ public class GUIProfessor extends JDialog {
     ImageIcon iconeSave = new ImageIcon(getClass().getResource("/icones/save.png"));
     ImageIcon iconeCancel = new ImageIcon(getClass().getResource("/icones/cancel.png"));
     ImageIcon iconeListar = new ImageIcon(getClass().getResource("/icones/list.png"));
+    ImageIcon iconeIdiomaMN = new ImageIcon(getClass().getResource("/icones/iconeIdiomaMN.png"));
     JButton btnCreate = new JButton(iconeCreate);
     JButton btnRetrieve = new JButton(iconeRetrieve);
     JButton btnUpdate = new JButton(iconeUpdate);
@@ -400,7 +401,7 @@ public class GUIProfessor extends JDialog {
                     tfidProfessor.selectAll();
                 }
             }
-        });
+        });        
         tfidProfessor.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent fe) {
@@ -514,16 +515,17 @@ public class GUIProfessor extends JDialog {
                 tfcrachaProfessor.setBackground(Color.white);
             }
         });
+        
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); //antes de sair do sistema, grava os dados da lista em disco
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
 
                 // Sai do sistema  
-                System.exit(0);
+                dispose();
             }
         });
-        
+
         setLocation(300, 200);
         setModal(true);
         setVisible(true);//faz a janela ficar visível

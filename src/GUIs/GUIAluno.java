@@ -103,13 +103,13 @@ public class GUIAluno extends JDialog {
 
     private void habilitarAtributos(
             boolean idAluno,
-             boolean nomeAluno,
-             boolean cpfAluno,
-             boolean datanascimentoAluno,
-             boolean cidadeAluno,
-             boolean enderecoAluno,
-             boolean emailAluno,
-             boolean telefoneAluno
+            boolean nomeAluno,
+            boolean cpfAluno,
+            boolean datanascimentoAluno,
+            boolean cidadeAluno,
+            boolean enderecoAluno,
+            boolean emailAluno,
+            boolean telefoneAluno
     ) {
         if (idAluno) {
             tfidAluno.requestFocus();
@@ -161,15 +161,7 @@ public class GUIAluno extends JDialog {
 
         atvBotoes(false, true, false, false);
 
-        habilitarAtributos(true,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false,
-                 false
-        );
+        habilitarAtributos(true, false, false, false, false, false, false, false);
         btnCreate.setToolTipText("Inserir novo registro");
         btnRetrieve.setToolTipText("Pesquisar por chave");
         btnUpdate.setToolTipText("Alterar");
@@ -233,13 +225,13 @@ public class GUIAluno extends JDialog {
         tfidAluno.setBackground(Color.GREEN);
         labelAviso.setText("Digite uma placa e clic [Pesquisar]");
         //setLocationRelativeTo(null); // posiciona no centro da tela principal
-        
+
         tfidAluno.addActionListener(new ActionListener() {//pesquisa incremental no id
             @Override
             public void actionPerformed(ActionEvent ae) {
-                
+
                 List<String> listaAuxiliar = daoAluno.listInOrderNomeStrings("id");
-                        
+
                 if (listaAuxiliar.size() > 0) {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar, 400, 400).getValorRetornado();
                     if (!selectedItem.equals("")) {
@@ -253,7 +245,7 @@ public class GUIAluno extends JDialog {
                 }
             }
         });
-        
+
         btnRetrieve.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -276,7 +268,7 @@ public class GUIAluno extends JDialog {
                         tfenderecoAluno.setText(aluno.getEnderecoAluno());
                         tfemailAluno.setText(aluno.getEmailAluno());
                         tftelefoneAluno.setText(aluno.getTelefoneAluno());
-                        habilitarAtributos(true,false,false,false,false,false,false,false);
+                        habilitarAtributos(true, false, false, false, false, false, false, false);
                         atvBotoes(false, true, true, true);
                         labelAviso.setText("Encontrou - clic [Pesquisar], [Alterar] ou [Excluir]");
                         acao = "encontrou";
@@ -295,13 +287,13 @@ public class GUIAluno extends JDialog {
                 zerarAtributos();
 
                 habilitarAtributos(false,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
                 );
                 tfnomeAluno.requestFocus();
                 mostrarBotoes(false);
@@ -328,7 +320,7 @@ public class GUIAluno extends JDialog {
                     aluno.setEmailAluno(tfemailAluno.getText());
                     aluno.setTelefoneAluno(tftelefoneAluno.getText());
                     daoAluno.inserir(aluno);
-                    habilitarAtributos(true,false,false,false,false,false,false,false);
+                    habilitarAtributos(true, false, false, false, false, false, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro inserido...");
@@ -346,7 +338,7 @@ public class GUIAluno extends JDialog {
                     aluno.setEmailAluno(tfemailAluno.getText());
                     aluno.setTelefoneAluno(tftelefoneAluno.getText());
                     daoAluno.atualizar(aluno);
-                    habilitarAtributos(true,false,false,false,false,false,false,false);
+                    habilitarAtributos(true, false, false, false, false, false, false, false);
                     mostrarBotoes(true);
                     atvBotoes(false, true, false, false);
                     labelAviso.setText("Registro atualizado...");
@@ -360,13 +352,13 @@ public class GUIAluno extends JDialog {
                 atvBotoes(false, true, false, false);
 
                 habilitarAtributos(true,
-                         false,
-                         false,
-                         false,
-                         false,
-                         false,
-                         false,
-                         false
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
                 );
                 mostrarBotoes(true);
             }
@@ -386,13 +378,13 @@ public class GUIAluno extends JDialog {
                 mostrarBotoes(false);
 
                 habilitarAtributos(false,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true,
-                         true
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
                 );
             }
         });
@@ -518,13 +510,13 @@ public class GUIAluno extends JDialog {
             public void windowClosing(WindowEvent e) {
 
                 // Sai do sistema  
-                System.exit(0);
+                dispose();
             }
         });
         setLocation(300, 200);
         setModal(true);
         setVisible(true);//faz a janela ficar visível
-        
+
     }
 
     public static void main(String[] args) {
